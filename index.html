@@ -14,6 +14,7 @@
       <h1>Смета за 5 минут</h1>
       <p class="hint">Добавьте позиции и цены — суммы посчитаются автоматически.</p>
     </header>
+    <h1 id="print-heading" class="print-only"></h1>
 
     <section class="card" aria-labelledby="details-heading">
       <h2 id="details-heading">Реквизиты</h2>
@@ -50,6 +51,22 @@
       <span>Итого к оплате</span>
       <output id="total" aria-live="polite" aria-atomic="true">0 ₸</output>
     </section>
+    <section class="card comment-card" aria-labelledby="comment-heading">
+      <h2 id="comment-heading"><label for="comment">Комментарий</label></h2>
+      <textarea id="comment" rows="3" placeholder="Сроки, условия оплаты"></textarea>
+    </section>
+    <p class="print-only signature">Подпись ____________________</p>
+    <div class="actions">
+      <button type="button" id="save-pdf" class="save-button">Сохранить PDF</button>
+      <button type="button" id="copy-whatsapp" class="add-button">Скопировать для WhatsApp</button>
+      <button type="button" id="new-estimate" class="add-button">Новая смета</button>
+    </div>
+    <p id="copy-status" role="status"></p>
+    <p id="storage-status" role="status"></p>
+    <div id="manual-copy" hidden>
+      <label for="share-text">Скопируйте текст вручную</label>
+      <textarea id="share-text" rows="8" readonly></textarea>
+    </div>
   </main>
 
   <template id="item-template">
