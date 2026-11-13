@@ -234,3 +234,28 @@ document.querySelector("#save-pdf").addEventListener("click", () => {
   preparePrint();
   window.print();
 });
+// Эффект волшебной палочки за курсором
+document.addEventListener('mousemove', function(e) {
+  // Чтобы искры не сыпались слишком часто (снижаем нагрузку)
+  if (Math.random() > 0.4) return; 
+
+  const sparkle = document.createElement('div');
+  sparkle.classList.add('magic-sparkle');
+  
+  // Случайный разлет искр в стороны
+  const dx = (Math.random() - 0.5) * 50 + 'px';
+  const dy = (Math.random() - 0.5) * 50 + 'px';
+  sparkle.style.setProperty('--dx', dx);
+  sparkle.style.setProperty('--dy', dy);
+
+  // Позиция курсора
+  sparkle.style.left = e.clientX + 'px';
+  sparkle.style.top = e.clientY + 'px';
+
+  document.body.appendChild(sparkle);
+
+  // Удаляем искорку из DOM после окончания анимации (0.6 секунды)
+  setTimeout(() => {
+      sparkle.remove();
+  }, 600);
+});
