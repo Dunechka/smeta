@@ -157,8 +157,4 @@ td:first-child { grid-column: 1 / -1; }
       transform: scale(0.2) translate(var(--dx), var(--dy));
       opacity: 0;
   }
-}/* Эксперимент с изумрудным зельем */
-.card {
-  background-color: #064e3b !important;
-  border-color: #10b981 !important;
 }
