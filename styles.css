@@ -6,7 +6,14 @@
   --accent: #8b5cf6; 
 }
 *, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; background: #0b0f19; }
+body { 
+  margin: 0; 
+  background: linear-gradient(rgba(11, 15, 25, 0.78), rgba(11, 15, 25, 0.78)), url('magic-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
 .page { width: min(1120px, 100%); margin: 0 auto; padding: 48px 24px 64px; }
 .page-header { margin-bottom: 32px; }
 .eyebrow { color: var(--accent); font-size: 12px; font-weight: 750; letter-spacing: .14em; margin: 0 0 12px; }
@@ -58,7 +65,6 @@ textarea { width: 100%; min-height: 100px; min-width: 44px; padding: 12px; borde
 #copy-status:empty, #storage-status:empty { display: none; }
 #manual-copy { margin-top: 20px; }
 
-/* Плавная анимация появления новых строк (бонус для ДЗ) */
 .fade-in-row {
   opacity: 0;
   transform: translateY(-8px);
