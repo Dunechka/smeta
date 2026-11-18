@@ -6,6 +6,10 @@ const total = document.querySelector("#total");
 const discountRate = document.querySelector("#discount-rate");
 const vatRate = document.querySelector("#vat-rate");
 const currency = document.querySelector("#currency");
+const exchangeRate = document.querySelector("#exchange-rate");
+const exchangeRates = { USD: "500", EUR: "550", CNY: "70" };
+const currencySymbols = { KZT: "₸", USD: "$", EUR: "€", CNY: "¥" };
+const convertedFormatter = new Intl.NumberFormat("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const moneyFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 });
 const draftKey = "smeta-draft-v1";
 const fieldIds = ["sender", "recipient", "estimate-number", "estimate-date", "discount-rate", "vat-rate", "currency", "comment"];
@@ -20,7 +24,25 @@ function parseNumber(value) {
 }
 
 function formatMoney(value) {
-  return `${moneyFormatter.format(Number.isFinite(value) ? value : 0).replace(/[\u00a0\u202f]/g, " ")} ${currency.value}`;
+  return `${moneyFormatter.format(Number.isFinite(value) ? value : 0).replace(/[\u00a0\u202f]/g, " ")} ₸`;
+}
+
+function updateConvertedTotal(amount) {
+  const code = currency.value;
+  const converting = code !== "KZT";
+  const rate = parseNumber(exchangeRates[code] || "");
+  const valid = rate > 0 && Number.isFinite(amount / rate);
+  document.querySelector("#exchange-controls").hidden = !converting;
+  document.querySelector("#exchange-label").textContent = `Курс в тенге за 1 ${code}`;
+  exchangeRate.value = exchangeRates[code] || "";
+  exchangeRate.setAttribute("aria-invalid", String(converting && !valid));
+  document.querySelector("#exchange-error").textContent = converting && !valid ? "Укажите положительный курс. Пока итог показан как 0." : "";
+  total.textContent = converting
+    ? `${convertedFormatter.format(valid ? amount / rate : 0).replace(/[\u00a0\u202f]/g, " ")} ${currencySymbols[code]}`
+    : formatMoney(amount);
+  const note = document.querySelector("#conversion-note");
+  note.hidden = !converting;
+  note.textContent = converting ? `Итог в тенге: ${formatMoney(amount)}. ${valid ? `Курс: 1 ${code} = ${exchangeRates[code]} ₸ (указан вручную).` : "Курс не задан — пересчёт недоступен."}` : "";
 }
 
 function roundAmount(value) {
@@ -48,7 +70,7 @@ function recalculate() {
   updateSummary("#discount-amount", "#discount-row", discount);
   updateSummary("#discounted-amount", "#discounted-row", discounted);
   updateSummary("#vat-amount", "#vat-row", vat);
-  total.textContent = formatMoney(roundAmount(discounted + vat));
+  updateConvertedTotal(roundAmount(discounted + vat));
   if (!restoringDraft) saveDraft();
 }
 
@@ -80,6 +102,10 @@ document.querySelector("#add-item").addEventListener("click", () => addItem());
 discountRate.addEventListener("input", recalculate);
 vatRate.addEventListener("input", recalculate);
 currency.addEventListener("change", recalculate);
+exchangeRate.addEventListener("input", () => {
+  if (currency.value !== "KZT") exchangeRates[currency.value] = exchangeRate.value;
+  recalculate();
+});
 
 const today = new Date();
 document.querySelector("#estimate-date").value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
@@ -96,7 +122,7 @@ function saveDraft() {
     price: row.querySelector(".price").value
   }));
   try {
-    localStorage.setItem(draftKey, JSON.stringify({ fields, positions }));
+    localStorage.setItem(draftKey, JSON.stringify({ fields, positions, exchangeRates }));
     document.querySelector("#storage-status").textContent = "";
   } catch {
     document.querySelector("#storage-status").textContent = "Не удалось сохранить черновик в браузере. Не закрывайте страницу, пока не сохраните PDF или текст.";
@@ -114,9 +140,16 @@ function restoreDraft() {
     }
     for (const id of fieldIds) {
       if (typeof draft.fields[id] === "string") {
-        if (id === "currency" && !["₸", "₽", "$", "€"].includes(draft.fields[id])) continue;
+        if (id === "currency") {
+          const code = ({ "₸": "KZT", "$": "USD", "€": "EUR" })[draft.fields[id]] || draft.fields[id];
+          currency.value = Object.hasOwn(currencySymbols, code) ? code : "KZT";
+          continue;
+        }
         document.getElementById(id).value = draft.fields[id];
       }
+    }
+    for (const code of Object.keys(exchangeRates)) {
+      if (typeof draft.exchangeRates?.[code] === "string") exchangeRates[code] = draft.exchangeRates[code];
     }
     items.replaceChildren();
     for (const position of draft.positions) {
@@ -156,7 +189,7 @@ document.querySelector("#new-estimate").addEventListener("click", () => {
   for (const id of fieldIds) document.getElementById(id).value = "";
   discountRate.value = "0";
   vatRate.value = "0";
-  currency.value = "₸";
+  currency.value = "KZT";
   document.querySelector("#estimate-number").value = String(nextNumber).padStart(/^\d+$/.test(currentNumber) ? currentNumber.length : 1, "0");
   const now = new Date();
   document.querySelector("#estimate-date").value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
@@ -191,6 +224,7 @@ function buildShareText() {
     if (!document.getElementById(rowId).hidden) lines.push(`${label}: ${document.getElementById(outputId).textContent}`);
   }
   lines.push(`Итого к оплате: ${total.textContent}`);
+  if (!document.querySelector("#conversion-note").hidden) lines.push(document.querySelector("#conversion-note").textContent);
   const comment = document.querySelector("#comment").value.trim();
   if (comment) lines.push("", comment);
   return lines.join("\n");

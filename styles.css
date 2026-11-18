@@ -46,6 +46,11 @@ th:nth-child(5) { text-align: right; }
 .add-button:hover { background: #1e1b4b; }
 .adjustments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; border-top: 1px solid #1f2937; margin-top: 26px; padding-top: 24px; }
 .breakdown { display: grid; gap: 16px; }
+.currency-note { color: #cbd5e1; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+#exchange-controls { max-width: 360px; margin-top: 20px; }
+#exchange-controls[hidden], #conversion-note[hidden] { display: none; }
+#exchange-error { color: #fda4af; font-size: 14px; }
+#exchange-error:empty { display: none; }
 .summary-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; color: #cbd5e1; }
 .summary-row[hidden] { display: none; }
 .summary-row output { font-weight: 650; text-align: right; overflow-wrap: anywhere; min-width: 0; color: #ffffff; }
@@ -89,6 +94,8 @@ input, select { padding-inline: 7px; }
 .page-header, button, .actions, #copy-status, #storage-status, #manual-copy, .adjustments, .remove-cell, th:last-child,
 .details input, #items input, #items select, #comment { display: none !important; }
 .print-only { display: block; }
+#exchange-controls, #currency-note { display: none !important; }
+#conversion-note { color: black; font-size: 10pt; margin-bottom: 6mm; }
 #print-heading { font-size: 20pt; margin: 0 0 8mm; letter-spacing: 0; }
 .card { border: 0; border-radius: 0; padding: 0; margin: 0 0 6mm; background: white !important; box-shadow: none !important; }
 h2 { font-size: 12pt; margin: 0 0 3mm; color: black !important; }

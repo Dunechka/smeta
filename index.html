@@ -38,8 +38,13 @@
       <div class="adjustments">
         <label>Скидка, %<input id="discount-rate" type="text" inputmode="decimal" value="0"></label>
         <label>НДС, %<input id="vat-rate" type="text" inputmode="decimal" value="0"></label>
-        <label>Валюта<select id="currency"><option>₸</option><option>₽</option><option>$</option><option>€</option></select></label>
+        <label>Валюта итога<select id="currency" aria-describedby="currency-note"><option value="KZT">Тенге (₸)</option><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="CNY">CNY (¥)</option></select></label>
       </div>
+      <div id="exchange-controls" hidden>
+        <label><span id="exchange-label">Курс в тенге за 1 USD</span><input id="exchange-rate" type="text" inputmode="decimal" aria-describedby="currency-note exchange-error"></label>
+        <p id="exchange-error" role="status"></p>
+      </div>
+      <p id="currency-note" class="currency-note">Цены и расчёты — в тенге. Конвертируется только итог. Начальные курсы примерные: USD — 500 ₸, EUR — 550 ₸, CNY — 70 ₸. Укажите свой курс; он сохраняется в браузере и не обновляется из интернета.</p>
     </section>
 
     <section class="card breakdown" aria-label="Расчёт итоговой суммы">
@@ -52,6 +57,7 @@
       <span>Итого к оплате</span>
       <output id="total" aria-live="polite" aria-atomic="true">0 ₸</output>
     </section>
+    <p id="conversion-note" class="currency-note" hidden></p>
     <section class="card comment-card" aria-labelledby="comment-heading">
       <h2 id="comment-heading"><label for="comment">Комментарий</label></h2>
       <textarea id="comment" rows="3" placeholder="Сроки, условия оплаты"></textarea>
