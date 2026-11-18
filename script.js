@@ -27,9 +27,42 @@ function formatMoney(value) {
   return `${moneyFormatter.format(Number.isFinite(value) ? value : 0).replace(/[\u00a0\u202f]/g, " ")} ₸`;
 }
 
+function amountInWords(amount) {
+  if (!Number.isInteger(amount) || amount === 0 || Math.abs(amount) > 999999999) return "";
+  const units = ["", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять"];
+  const teens = ["десять", "одиннадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать", "шестнадцать", "семнадцать", "восемнадцать", "девятнадцать"];
+  const tens = ["", "", "двадцать", "тридцать", "сорок", "пятьдесят", "шестьдесят", "семьдесят", "восемьдесят", "девяносто"];
+  const hundreds = ["", "сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот"];
+  const words = amount < 0 ? ["минус"] : [];
+  const groups = [
+    [Math.floor(Math.abs(amount) / 1000000), ["миллион", "миллиона", "миллионов"], false],
+    [Math.floor(Math.abs(amount) / 1000) % 1000, ["тысяча", "тысячи", "тысяч"], true],
+    [Math.abs(amount) % 1000, null, false]
+  ];
+  for (const [value, forms, feminine] of groups) {
+    if (!value) continue;
+    words.push(hundreds[Math.floor(value / 100)]);
+    const remainder = value % 100;
+    const unit = value % 10;
+    if (remainder >= 10 && remainder <= 19) words.push(teens[remainder - 10]);
+    else {
+      words.push(tens[Math.floor(remainder / 10)]);
+      words.push(feminine && unit === 1 ? "одна" : feminine && unit === 2 ? "две" : units[unit]);
+    }
+    if (forms) words.push(forms[remainder >= 11 && remainder <= 14 ? 2 : unit === 1 ? 0 : unit >= 2 && unit <= 4 ? 1 : 2]);
+  }
+  words.push("тенге");
+  const result = words.filter(Boolean).join(" ");
+  return result[0].toUpperCase() + result.slice(1);
+}
+
 function updateConvertedTotal(amount) {
   const code = currency.value;
   const converting = code !== "KZT";
+  const words = converting ? "" : amountInWords(amount);
+  const wordsLine = document.querySelector("#amount-in-words");
+  wordsLine.hidden = !words;
+  wordsLine.textContent = words ? `Сумма прописью: ${words}` : "";
   const rate = parseNumber(exchangeRates[code] || "");
   const valid = rate > 0 && Number.isFinite(amount / rate);
   document.querySelector("#exchange-controls").hidden = !converting;
@@ -224,6 +257,7 @@ function buildShareText() {
     if (!document.getElementById(rowId).hidden) lines.push(`${label}: ${document.getElementById(outputId).textContent}`);
   }
   lines.push(`Итого к оплате: ${total.textContent}`);
+  if (!document.querySelector("#amount-in-words").hidden) lines.push(document.querySelector("#amount-in-words").textContent);
   if (!document.querySelector("#conversion-note").hidden) lines.push(document.querySelector("#conversion-note").textContent);
   const comment = document.querySelector("#comment").value.trim();
   if (comment) lines.push("", comment);

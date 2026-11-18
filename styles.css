@@ -96,6 +96,7 @@ input, select { padding-inline: 7px; }
 .print-only { display: block; }
 #exchange-controls, #currency-note { display: none !important; }
 #conversion-note { color: black; font-size: 10pt; margin-bottom: 6mm; }
+#amount-in-words { color: black; font-size: 10pt; }
 #print-heading { font-size: 20pt; margin: 0 0 8mm; letter-spacing: 0; }
 .card { border: 0; border-radius: 0; padding: 0; margin: 0 0 6mm; background: white !important; box-shadow: none !important; }
 h2 { font-size: 12pt; margin: 0 0 3mm; color: black !important; }
